@@ -80,8 +80,6 @@ public class PlayerController : MonoBehaviour
          * Handles inputs or lack there of
          */
         rotationLock = Input.GetKey(KeyCode.L);
-
-
         if (Input.GetKeyDown(KeyCode.Space) && actionsAvailable && !inAir)
         {
             jumpEvent.Invoke();
@@ -90,8 +88,6 @@ public class PlayerController : MonoBehaviour
         {
             toggleMouse = !toggleMouse;
         }
-
-
         if (Input.GetKey(KeyCode.W))
         {
 
@@ -109,13 +105,10 @@ public class PlayerController : MonoBehaviour
             moveRightEvent.Invoke();
         }
         playerAnimations.SetBool("IsWalking", Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D));
-
-
         isHoldingLeftOrRight = (Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.D)) && actionsAvailable;
         /*
          * Handles inputs or lack there of
          */
-
         moveVelocityX = Mathf.Clamp(moveVelocityX, -moveSpeed, moveSpeed);
     }
 

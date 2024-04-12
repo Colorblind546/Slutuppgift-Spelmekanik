@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class PlayerEnergy : MonoBehaviour
 {
-    [SerializeField] int energy;
+    public int energy;
 
     
 
@@ -13,7 +13,7 @@ public class PlayerEnergy : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        FindObjectOfType<PlayerController>().jumpEvent.AddListener(Jumped);
+
     } 
 
     // Update is called once per frame
@@ -22,8 +22,18 @@ public class PlayerEnergy : MonoBehaviour
         
     }
 
-    void Jumped()
+    public void RechargeEnergy(int rechargeAmount)
     {
 
+    }
+
+    public bool UseEnergy(int energyNeeded)
+    {
+        bool canUse = energy > energyNeeded;
+        if (canUse)
+        {
+            energy -= energyNeeded;
+        }
+        return canUse;
     }
 }
