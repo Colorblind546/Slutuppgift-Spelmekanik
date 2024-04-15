@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class EnemyHealth : MonoBehaviour
 {
-    [SerializeField] string enemyType;
+    public string enemyType;
     [SerializeField] int health;
 
     SpriteRenderer spriteRenderer;
@@ -23,6 +23,11 @@ public class EnemyHealth : MonoBehaviour
         
     }
 
+    public void BeenHit(int damage, string damageType)
+    {
+        EnemyController controller = GetComponent<EnemyController>();
+        controller.IsGuardingOrParrying(damage, damageType);
+    }
 
     public void ReceiveDamage(int damage, string damageType)
     {

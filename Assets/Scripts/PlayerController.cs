@@ -22,25 +22,29 @@ public class PlayerController : MonoBehaviour
     };
 
     public Animator playerAnimations;
+    SpriteRenderer spriteRenderer;
     [SerializeField] AnimationClip rapierSlashAnim;
 
-    SpriteRenderer spriteRenderer;
+
     [SerializeField] bool actionsAvailable = true;
+    [SerializeField] bool inAir;
+
+
     [SerializeField] bool isHoldingLeftOrRight;
     [SerializeField] string directionFacing;
-    [SerializeField] int leftRightInt;
     [SerializeField] bool rotationLock;
     [SerializeField] bool toggleMouse;
-    [SerializeField] bool inAir;
+    [SerializeField] int leftRightInt;
+    float movingForwards;
+
+
     [SerializeField] private float moveVelocityX;
     [SerializeField] private float moveVelocityY;
     [SerializeField] float moveAcceleration;
     [SerializeField] float moveSpeed;
     [SerializeField] float jumpHeight;
 
-    float movingForwards;
 
-    float temporaryCooldown;
 
     UnityEvent slashAttackEvent = new UnityEvent();
     public UnityEvent jumpEvent = new UnityEvent();
@@ -67,18 +71,13 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void Update()
     {
-        temporaryCooldown -= Time.deltaTime;
-
-        if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.J)) && actionsAvailable && !inAir)
-        {
-            slashAttackEvent.Invoke();
-            temporaryCooldown = 1.5f;
-        }
-
-
         /*
          * Handles inputs or lack there of
          */
+        if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.J)) && actionsAvailable && !inAir)
+        {
+            slashAttackEvent.Invoke();
+        }
         rotationLock = Input.GetKey(KeyCode.L);
         if (Input.GetKeyDown(KeyCode.Space) && actionsAvailable && !inAir)
         {
@@ -109,6 +108,9 @@ public class PlayerController : MonoBehaviour
         /*
          * Handles inputs or lack there of
          */
+
+
+
         moveVelocityX = Mathf.Clamp(moveVelocityX, -moveSpeed, moveSpeed);
     }
 
@@ -165,6 +167,8 @@ public class PlayerController : MonoBehaviour
         {
             NotHoldingLeftOrRight();
         }
+
+
         float totalVelocityX = moveVelocityX;
         float totalVelocityY = moveVelocityY;
         transform.position += new Vector3(totalVelocityX, totalVelocityY, 0) * Time.fixedDeltaTime;
@@ -204,7 +208,7 @@ public class PlayerController : MonoBehaviour
                 {
                     GameObject enemyGameObj = enemy.gameObject;
                     EnemyHealth enemyHealth = enemyGameObj.GetComponent<EnemyHealth>();
-                    enemyHealth.ReceiveDamage(5, "Slash");
+                    enemyHealth.BeenHit(10, "Slash");
                 }
                 catch
                 {
@@ -216,6 +220,9 @@ public class PlayerController : MonoBehaviour
         {
         }
     }
+    /// <summary>
+    /// When Called, increases/decreses moveVelocityX to make the character mover right or left
+    /// </summary>
     private void HoldingLeft()
     {
         moveVelocityX += -moveAcceleration * Time.deltaTime;
@@ -232,17 +239,6 @@ public class PlayerController : MonoBehaviour
             moveVelocityX += moveAcceleration * Time.deltaTime;
         }
     }
-    /// <summary>
-    /// When Called, increases/decreses moveVelocityX to make the character mover right or left
-    /// </summary>
-
-    public void Jump()
-    {
-        moveVelocityY += jumpHeight;
-    }
-
-
-
     private void NotHoldingLeftOrRight()
     {
         if (moveVelocityX < 0)
@@ -263,5 +259,16 @@ public class PlayerController : MonoBehaviour
     ///  <summary>
 
 
+
+    public void Jump()
+    {
+        moveVelocityY += jumpHeight;
+    }
+
+
+    public void BeenParried()
+    {
+
+    }
 }
 
