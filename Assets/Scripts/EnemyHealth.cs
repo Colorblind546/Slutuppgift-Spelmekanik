@@ -15,6 +15,7 @@ public class EnemyHealth : MonoBehaviour
     void Start()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
+        spriteRenderer.color = Color.magenta;
     }
 
     // Update is called once per frame
@@ -31,7 +32,22 @@ public class EnemyHealth : MonoBehaviour
 
     public void ReceiveDamage(int damage, string damageType)
     {
-        Debug.Log("Hit");
-        spriteRenderer.color = Color.red;
+        if (damage != 0 && damageType != "Blocked")
+        {
+            Debug.Log("Hit");
+            spriteRenderer.color = Color.red;
+            Invoke("ResetColor", 0.2f);
+        }
+        else if (damage == 0 && damageType == "Blocked")
+        {
+            spriteRenderer.color = Color.cyan;
+            Invoke("ResetColor", 0.2f);
+        }
+        
+    }
+
+    void ResetColor()
+    {
+        spriteRenderer.color = Color.magenta;
     }
 }

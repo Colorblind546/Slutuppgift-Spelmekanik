@@ -12,24 +12,26 @@ public class PlayerController : MonoBehaviour
     /// Collision and HitDetection /\ /\ /\
     /// </summary>
 
+    // Layermasks
     [SerializeField] LayerMask ground;
     [SerializeField] LayerMask enemy;
 
-
+    // All animation states that do not lock standard actions such as attacking, walking or jumping
     string[] nonActionLockedStates =
     {
         "Idle", "WalkBlendTree"
     };
 
+    // Player rendering related variables
     public Animator playerAnimations;
     SpriteRenderer spriteRenderer;
     [SerializeField] AnimationClip rapierSlashAnim;
 
-
+    // Booleans for whether or not some types of actions can be performed
     [SerializeField] bool actionsAvailable = true;
     [SerializeField] bool inAir;
 
-
+    // Direction related variables
     [SerializeField] bool isHoldingLeftOrRight;
     [SerializeField] string directionFacing;
     [SerializeField] bool rotationLock;
@@ -37,7 +39,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] int leftRightInt;
     float movingForwards;
 
-
+    // Movement related variables
     [SerializeField] private float moveVelocityX;
     [SerializeField] private float moveVelocityY;
     [SerializeField] float moveAcceleration;
@@ -45,7 +47,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float jumpHeight;
 
 
-
+    // Events
     UnityEvent slashAttackEvent = new UnityEvent();
     public UnityEvent jumpEvent = new UnityEvent();
     public UnityEvent moveLeftEvent = new UnityEvent();
@@ -149,7 +151,7 @@ public class PlayerController : MonoBehaviour
         }
 
 
-
+        // Checks whether player is moving towards the direction they are facing, whether that be the mouse, or direction lock on keyboard
         float movingTowardsMouse;
         float mouseToPlayerVector = Input.mousePosition.x - Camera.main.WorldToScreenPoint(transform.position).x;
         float mouseIsLeftOrRight = mouseToPlayerVector / Mathf.Abs(mouseToPlayerVector);
@@ -268,7 +270,7 @@ public class PlayerController : MonoBehaviour
 
     public void BeenParried()
     {
-
+        playerAnimations.SetTrigger("Parried");
     }
 }
 
