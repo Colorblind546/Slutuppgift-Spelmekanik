@@ -177,6 +177,8 @@ public class PlayerController : MonoBehaviour
         movingTowardsMouse = (transform.position.x - movingForwards) * mouseIsLeftOrRight;
         movingForwards = transform.position.x;
         playerAnimations.SetFloat("SpeedHeadingTowards", movingTowardsMouse);
+        playerAnimations.SetFloat("VelocityY", totalVelocityY);
+        playerAnimations.SetBool("IsAirborne", inAir);
 
 
         if (directionFacing == "Left")

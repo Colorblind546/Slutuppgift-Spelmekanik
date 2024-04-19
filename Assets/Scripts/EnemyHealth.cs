@@ -6,7 +6,7 @@ using UnityEngine;
 public class EnemyHealth : MonoBehaviour
 {
     public string enemyType;
-    [SerializeField] int health;
+    public int health;
 
     SpriteRenderer spriteRenderer;
 
@@ -15,7 +15,6 @@ public class EnemyHealth : MonoBehaviour
     void Start()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
-        spriteRenderer.color = Color.magenta;
     }
 
     // Update is called once per frame
@@ -27,7 +26,7 @@ public class EnemyHealth : MonoBehaviour
     public void BeenHit(int damage, string damageType)
     {
         EnemyController controller = GetComponent<EnemyController>();
-        controller.IsGuardingOrParrying(damage, damageType);
+        controller.DefenceCheck(damage, damageType);
     }
 
     public void ReceiveDamage(int damage, string damageType)
@@ -35,6 +34,7 @@ public class EnemyHealth : MonoBehaviour
         if (damage != 0 && damageType != "Blocked")
         {
             Debug.Log("Hit");
+            health -= damage;
             spriteRenderer.color = Color.red;
             Invoke("ResetColor", 0.2f);
         }
@@ -48,6 +48,6 @@ public class EnemyHealth : MonoBehaviour
 
     void ResetColor()
     {
-        spriteRenderer.color = Color.magenta;
+        spriteRenderer.color = Color.white;
     }
 }
