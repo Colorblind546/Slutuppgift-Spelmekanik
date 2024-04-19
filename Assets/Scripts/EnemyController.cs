@@ -22,13 +22,13 @@ public class EnemyController : MonoBehaviour
     [SerializeField] float moveAcceleration;
     float velocityX;
     float velocityY;
-    Transform previousTransform;
 
     // Action availability variables
     bool isBusy;
+    bool grounded;
     string[] nonActionLockedStates =
     {
-        "DarkKnightWalk", "New State"
+        "DarkKnightWalk", "DarkKnightIdle"
     };
 
     // Combat related variables
@@ -44,8 +44,13 @@ public class EnemyController : MonoBehaviour
     // Enemy rendering related variables
     SpriteRenderer spriteRenderer;
     Animator animator;
-    
 
+    // Collsion checks
+    [SerializeField] GameObject groundCheck;
+
+
+    // Layermasks
+    [SerializeField] LayerMask ground;
 
     // Start is called before the first frame update
     void Start()
@@ -93,7 +98,6 @@ public class EnemyController : MonoBehaviour
             BasicEnemyUpdate();
         }
 
-
     }
 
     void FixedUpdate()
@@ -106,6 +110,16 @@ public class EnemyController : MonoBehaviour
         velocityX = Mathf.Clamp(velocityX, -maxMoveSpeed, maxMoveSpeed);
         transform.position += new Vector3(velocityX, velocityY, 0) * Time.fixedDeltaTime;
 
+        grounded = Physics2D.OverlapBox(groundCheck.transform.position, new Vector2(1.3f, 0), 0f, ground);
+        if (grounded && velocityY < 0)
+        {
+            velocityY = 0f;
+            
+        }
+        else if (!grounded)
+        {
+            velocityY += -9.81f * Time.fixedDeltaTime;
+        }
 
         AnimatorStateInfo animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
         foreach (string state in nonActionLockedStates)
@@ -159,7 +173,6 @@ public class EnemyController : MonoBehaviour
 
         animator.SetFloat("SpeedWalkingTowards", velocityX);
         animator.SetFloat("MoveSpeed", Mathf.Abs(velocityX) / maxMoveSpeed);
-
 
 
         if (playerSpotted)
@@ -514,6 +527,7 @@ public class EnemyController : MonoBehaviour
     void SlowDown()
     {
         velocityX += -velocityX * 5f * Time.fixedDeltaTime;
+        
     }
 
     // Will move the enemy left
