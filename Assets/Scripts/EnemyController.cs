@@ -34,23 +34,31 @@ public class EnemyController : MonoBehaviour
     // Combat related variables
     [SerializeField] string combatState;
     [SerializeField] float defensiveCooldown;
+    [SerializeField] float offensiveCooldown;
     float inStateFor;
     bool isPanicking;
     float preferredCombatDistance;
     bool isPlayerToLeft;
     bool isParrying;
     bool isBlocking;
+    float hitFrameDelay;
 
     // Enemy rendering related variables
     SpriteRenderer spriteRenderer;
+    [SerializeField] int attackFrameRate;
     Animator animator;
+    [SerializeField] AnimationClip darkKnightBasicSlash;
 
-    // Collsion checks
+    // Collision checks
     [SerializeField] GameObject groundCheck;
 
+    // Hit checks
+    [SerializeField] GameObject leftHitCheck;
+    [SerializeField] GameObject rightHitCheck;
 
     // Layermasks
     [SerializeField] LayerMask ground;
+    [SerializeField] LayerMask playerLayer;
 
     // Start is called before the first frame update
     void Start()
@@ -72,7 +80,7 @@ public class EnemyController : MonoBehaviour
         healthStats = GetComponent<EnemyHealth>();
         
 
-        inStateFor = 7.5f;
+        inStateFor = 5f;
         isPanicking = false;
 
         enemyType = healthStats.enemyType;
@@ -93,7 +101,12 @@ public class EnemyController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (enemyType == "Basic")
+        if (player == null)
+        {
+            playerSpotted = false;
+        }
+
+        if (enemyType == "Basic" && player != null)
         {
             BasicEnemyUpdate();
         }
@@ -102,7 +115,11 @@ public class EnemyController : MonoBehaviour
 
     void FixedUpdate()
     {
-        if (enemyType == "Basic")
+        if (player == null)
+        {
+            playerSpotted = false;
+        }
+        if (enemyType == "Basic" && player != null)
         {
             BasicEnemyFixedUpdate();
         }
@@ -163,6 +180,7 @@ public class EnemyController : MonoBehaviour
     // FixedUpdate call dedicated to the "Basic" enemy type
     private void BasicEnemyFixedUpdate()
     {
+
         float playerDistance = player.transform.position.x - transform.position.x;
         if (Mathf.Abs(playerDistance) < visionRange && !playerSpotted)
         {
@@ -170,6 +188,14 @@ public class EnemyController : MonoBehaviour
             combatState = "Cautious";
         }
 
+        if (offensiveCooldown > 0)
+        {
+            offensiveCooldown -= Time.fixedDeltaTime;
+        }
+
+        AnimatorStateInfo animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        hitFrameDelay = darkKnightBasicSlash.length / darkKnightBasicSlash.frameRate * 5;
+        
 
         animator.SetFloat("SpeedWalkingTowards", velocityX);
         animator.SetFloat("MoveSpeed", Mathf.Abs(velocityX) / maxMoveSpeed);
@@ -192,22 +218,18 @@ public class EnemyController : MonoBehaviour
             if (healthStats.health < 33.3f && !isPanicking)
             {
                 isPanicking = true;
-                int panicState = Random.Range(1, 4);
+                int panicState = Random.Range(1, 3);
                 switch (panicState)
                 {
                     case 1:
                         {
+                            offensiveCooldown = 0.25f;
                             combatState = "Aggressive";
                                 break;
                         }
                     case 2:
                         {
                             combatState = "Defensive";
-                                break;
-                        }
-                    case 3:
-                        {
-                            combatState = "Cautious";
                                 break;
                         }
                 }
@@ -231,62 +253,68 @@ public class EnemyController : MonoBehaviour
                  * An Aggressive enemy will not stay aggressive for long and will almost immediately switch back to being Cautious or Defensive
                  */
                 case "Aggressive":
-                {
-                    maxMoveSpeed = 5;
-                    moveAcceleration = 12;
-                    preferredCombatDistance = 2.25f;
-
-                    // If enemy is within preferred range of distance from the player when aggressive, it will attempt to keep that distance
-                    if (Mathf.Abs(Mathf.Abs(playerDistance) - preferredCombatDistance) < 0.25f)
                     {
-                        SlowDown();
-                    }
+                        maxMoveSpeed = 5;
+                        moveAcceleration = 12;
+                        preferredCombatDistance = 2f;
 
-                    // If enemy is farther than preferred distance from the player it will attempt to close it
-                    else if (Mathf.Abs(playerDistance) > preferredCombatDistance && !isBusy)
-                    {
-                        // Moves the enemy based on which side it is on in relation to the player
-                        if (isPlayerToLeft)
-                        {
-                            MoveLeft();
-                        }
-                        else
-                        {
-                            MoveRight();
-                        }
-                    }
 
-                    // If enemy is closer than preferred distance from the player it will attempt to make distance
-                    if (Mathf.Abs(playerDistance) < preferredCombatDistance && !isBusy)
-                    {
-                        // Moves the enemy based on which side it is on in relation to the player
-                        if (isPlayerToLeft)
+                        if (offensiveCooldown <= 0)
                         {
-                            MoveRight();
+                            Invoke("StartAttack", 0);
                         }
-                        else
-                        {
-                            MoveLeft();
-                        }
-                    }
 
-                    // This changes the state of the enemy to one of the states it is not in whenever the "inStateFor" timer runs out
-                    if (inStateFor <= 0f && !isBusy)
-                    {
-                        int nextState = Random.Range(0, 2);
-                        if (nextState == 0)
+                        // If enemy is within preferred range of distance from the player when aggressive, it will attempt to keep that distance
+                        if (Mathf.Abs(Mathf.Abs(playerDistance) - preferredCombatDistance) < 0.25f)
                         {
-                            combatState = "Cautious";
+                            SlowDown();
+                        }
+
+                        // If enemy is farther than preferred distance from the player it will attempt to close it
+                        else if (Mathf.Abs(playerDistance) > preferredCombatDistance && !isBusy)
+                        {
+                            // Moves the enemy based on which side it is on in relation to the player
+                            if (isPlayerToLeft)
+                            {
+                                MoveLeft();
+                            }
+                            else
+                            {
+                                MoveRight();
+                            }
+                        }
+
+                        // If enemy is closer than preferred distance from the player it will attempt to make distance
+                        if (Mathf.Abs(playerDistance) < preferredCombatDistance && !isBusy)
+                        {
+                            // Moves the enemy based on which side it is on in relation to the player
+                            if (isPlayerToLeft)
+                            {
+                                MoveRight();
+                            }
+                            else
+                            {
+                                MoveLeft();
+                            }
+                        }
+
+                        // This changes the state of the enemy to one of the states it is not in whenever the "inStateFor" timer runs out
+                        if (inStateFor <= 0f && !isBusy)
+                        {
+                            int nextState = Random.Range(0, 2);
+                            if (nextState == 0)
+                            {
+                                combatState = "Cautious";
+                                inStateFor = 5;
+                            }
+                            else
+                            {
+                                combatState = "Defensive";
                             inStateFor = 5;
+                            }
                         }
-                        else
-                        {
-                            combatState = "Defensive";
-                        inStateFor = 5;
-                        }
+                            break;
                     }
-                        break;
-                }
 
 
 
@@ -304,79 +332,80 @@ public class EnemyController : MonoBehaviour
                  * A Defensive enemy can change to any state, with the exception being it immediately becoming aggressive when landing a successful parry
                  */
                 case "Defensive":
-                {
-                    maxMoveSpeed = 3.5f;
-                    moveAcceleration = 8;
-                    preferredCombatDistance = 2.75f;
-
-                    // If enemy is within preferred range of distance from the player when defensive, it will attempt to keep that distance
-                    if (Mathf.Abs(Mathf.Abs(playerDistance) - preferredCombatDistance) < 0.25f)
                     {
-                        SlowDown();
-                    }
+                        maxMoveSpeed = 3.5f;
+                        moveAcceleration = 8;
+                        preferredCombatDistance = 2.75f;
 
-                    // If enemy is farther than preferred distance from the player it will attempt to close it
-                    else if (Mathf.Abs(playerDistance) > preferredCombatDistance && !isBusy)
-                    {
-                        // Moves the enemy based on which side it is on in relation to the player
-                        if (isPlayerToLeft)
+                        // If enemy is within preferred range of distance from the player when defensive, it will attempt to keep that distance
+                        if (Mathf.Abs(Mathf.Abs(playerDistance) - preferredCombatDistance) < 0.25f)
                         {
-                            MoveLeft();
+                            SlowDown();
                         }
-                        else
-                        {
-                            MoveRight();
-                        }
-                    }
 
-                    // If enemy is closer than preferred distance from the player it will attempt to make distance
-                    if (Mathf.Abs(playerDistance) < preferredCombatDistance && !isBusy)
-                    {
-                        // Moves the enemy based on which side it is on in relation to the player
-                        if (isPlayerToLeft)
+                        // If enemy is farther than preferred distance from the player it will attempt to close it
+                        else if (Mathf.Abs(playerDistance) > preferredCombatDistance && !isBusy)
                         {
-                            MoveRight();
+                            // Moves the enemy based on which side it is on in relation to the player
+                            if (isPlayerToLeft)
+                            {
+                                MoveLeft();
+                            }
+                            else
+                            {
+                                MoveRight();
+                            }
                         }
-                        else
-                        {
-                            MoveLeft();
-                        }
-                    }
 
-                    // Randomly chooses an int between 0 - 10 (including 0, 10), and blocks, parries or does nothing depending on the number
-                    if (playerAnimations.GetCurrentAnimatorStateInfo(0).IsName("RapierSlash") &&  defensiveCooldown <= 0 && !isBusy)
-                    {
-                        defensiveCooldown = 1;
-                        int defensiveManeuver = Random.Range(0, 11);
+                        // If enemy is closer than preferred distance from the player it will attempt to make distance
+                        if (Mathf.Abs(playerDistance) < preferredCombatDistance && !isBusy)
+                        {
+                            // Moves the enemy based on which side it is on in relation to the player
+                            if (isPlayerToLeft)
+                            {
+                                MoveRight();
+                            }
+                            else
+                            {
+                                MoveLeft();
+                            }
+                        }
+
+                        // Randomly chooses an int between 0 - 10 (including 0, 10), and blocks, parries or does nothing depending on the number
+                        if (playerAnimations.GetCurrentAnimatorStateInfo(0).IsName("RapierSlash") &&  defensiveCooldown <= 0 && !isBusy)
+                        {
+                            defensiveCooldown = 1;
+                            int defensiveManeuver = Random.Range(0, 11);
                     
-                        if (defensiveManeuver >= 8)
-                        {
-                            Invoke("Parry", 0f);
+                            if (defensiveManeuver >= 8)
+                            {
+                                Invoke("Parry", 0f);
+                            }
+                            else if (defensiveManeuver > 4 && defensiveManeuver <= 7)
+                            {
+                                Invoke("Guard", 0f);
+                            }
                         }
-                        else if (defensiveManeuver > 4 && defensiveManeuver <= 7)
-                        {
-                            Invoke("Guard", 0f);
-                        }
-                    }
 
 
-                    // This changes the state of the enemy to one of the states it is not in whenever the "inStateFor" timer runs out
-                    if (inStateFor <= 0f && !isBusy)
-                    {
-                        int nextState = Random.Range(0, 2);
-                        if (nextState == 0)
+                        // This changes the state of the enemy to one of the states it is not in whenever the "inStateFor" timer runs out
+                        if (inStateFor <= 0f && !isBusy)
                         {
-                            combatState = "Aggressive";
-                            inStateFor = 2;
+                            int nextState = Random.Range(0, 2);
+                            if (nextState == 0)
+                            {
+                                offensiveCooldown = 0.25f;
+                                combatState = "Aggressive";
+                                inStateFor = 2;
+                            }
+                            else
+                            {
+                                combatState = "Cautious";
+                                inStateFor = 5;
+                            }
                         }
-                        else
-                        {
-                            combatState = "Cautious";
-                            inStateFor = 5;
-                        }
+                            break;
                     }
-                        break;
-                }
 
 
 
@@ -393,81 +422,82 @@ public class EnemyController : MonoBehaviour
                  * A Cautious enemy can can change to any state
                  */
                 case "Cautious":
-                {
-                    maxMoveSpeed = 4.5f;
-                    moveAcceleration = 10;
-                    preferredCombatDistance = 3.5f;
-
-                    // If enemy is within preferred range of distance from the player when cautious, it will attempt to keep that distance
-                    if (Mathf.Abs(Mathf.Abs(playerDistance) - preferredCombatDistance) < 0.25f)
                     {
-                        SlowDown();
-                    }
+                        maxMoveSpeed = 4.5f;
+                        moveAcceleration = 10;
+                        preferredCombatDistance = 3.5f;
 
-                    // If the enemy is farther than the preferred distance from the player, it will attempt to close the distance
-                    else if (Mathf.Abs(playerDistance) > preferredCombatDistance && !isBusy)
-                    {
-                        // Moves the enemy based on which side it is on in relation to the player
-                        if (isPlayerToLeft)
+                        // If enemy is within preferred range of distance from the player when cautious, it will attempt to keep that distance
+                        if (Mathf.Abs(Mathf.Abs(playerDistance) - preferredCombatDistance) < 0.25f)
                         {
-                            MoveLeft();
+                            SlowDown();
                         }
-                        else
-                        {
-                            MoveRight();
-                        }
-                    }
 
-                    // If enemy is closer than preferred distance from the player it will attempt to make distance
-                    if (Mathf.Abs(playerDistance) < preferredCombatDistance && !isBusy)
-                    {
-                        // Moves the enemy based on which side it is on in relation to the player
-                        if (isPlayerToLeft)
+                        // If the enemy is farther than the preferred distance from the player, it will attempt to close the distance
+                        else if (Mathf.Abs(playerDistance) > preferredCombatDistance && !isBusy)
                         {
-                            MoveRight();
+                            // Moves the enemy based on which side it is on in relation to the player
+                            if (isPlayerToLeft)
+                            {
+                                MoveLeft();
+                            }
+                            else
+                            {
+                                MoveRight();
+                            }
                         }
-                        else
+
+                        // If enemy is closer than preferred distance from the player it will attempt to make distance
+                        if (Mathf.Abs(playerDistance) < preferredCombatDistance && !isBusy)
                         {
-                            MoveLeft();
+                            // Moves the enemy based on which side it is on in relation to the player
+                            if (isPlayerToLeft)
+                            {
+                                MoveRight();
+                            }
+                            else
+                            {
+                                MoveLeft();
+                            }
                         }
-                    }
 
                     
-                    dodgeCooldown -= Time.fixedDeltaTime; // Countdown to make the enemy not spam dodge
+                        dodgeCooldown -= Time.fixedDeltaTime; // Countdown to make the enemy not spam dodge
 
-                    // This will cause the enemy to dodge when the player uses the attack that the "RapierSlash" animation is attached to
-                    if (playerAnimations.GetCurrentAnimatorStateInfo(0).IsName("RapierSlash") && dodgeCooldown <= 0f && !isBusy)
-                    {
-                        dodgeCooldown = 2;
-                        if (isPlayerToLeft)
+                        // This will cause the enemy to dodge when the player uses the attack that the "RapierSlash" animation is attached to
+                        if (playerAnimations.GetCurrentAnimatorStateInfo(0).IsName("RapierSlash") && dodgeCooldown <= 0f && !isBusy)
                         {
-                            DodgeRight();
+                            dodgeCooldown = 2;
+                            if (isPlayerToLeft)
+                            {
+                                DodgeRight();
 
+                            }
+                            else
+                            {
+                                DodgeLeft();
+                            }
                         }
-                        else
-                        {
-                            DodgeLeft();
-                        }
-                    }
 
-                    // This changes the state of the enemy to one of the states it is not in whenever the "inStateFor" timer runs out
-                    if (inStateFor <= 0f && !isBusy)
-                    {
-                        int nextState = Random.Range(0, 2);
-                        if (nextState == 0)
+                        // This changes the state of the enemy to one of the states it is not in whenever the "inStateFor" timer runs out
+                        if (inStateFor <= 0f && !isBusy)
                         {
-                            combatState = "Aggressive";
-                            inStateFor = 2;
-                        }
-                        else
-                        {
-                            combatState = "Defensive";
-                            inStateFor = 5;
-                        }
+                            int nextState = Random.Range(0, 2);
+                            if (nextState == 0)
+                            {
+                                offensiveCooldown = 0.5f;
+                                combatState = "Aggressive";
+                                inStateFor = 2;
+                            }
+                            else
+                            {
+                                combatState = "Defensive";
+                                inStateFor = 5;
+                            }
                     
+                        }
+                            break;
                     }
-                        break;
-                }
             }
         }
         
@@ -520,6 +550,43 @@ public class EnemyController : MonoBehaviour
 
 
 
+    private void StartAttack()
+    {
+        offensiveCooldown = 3;
+        animator.SetTrigger("BasicSlash");
+        Invoke("AttackHitCheck", hitFrameDelay);
+    }
+
+    private void AttackHitCheck()
+    {
+        switch (isPlayerToLeft)
+        {
+            case true:
+                {
+                    Debug.Log("Attack Check Successful");
+                    Collider2D playerHitbox = Physics2D.OverlapCircle(leftHitCheck.transform.position, 1.25f, playerLayer);
+                    if (playerHitbox != null)
+                    {
+                        Debug.Log("PlayerHit");
+                        PlayerHealth playerHealth = playerHitbox.GetComponent<PlayerHealth>();
+                        playerHealth.OnPlayerReceiveDamage("Normal");
+                    }
+                    break;
+                }
+            case false:
+                {
+                    Debug.Log("Attack Check Successful");
+                    Collider2D playerHitbox = Physics2D.OverlapCircle(rightHitCheck.transform.position, 1.25f, playerLayer);
+                    if (playerHitbox != null)
+                    {
+                        Debug.Log("PlayerHit");
+                        PlayerHealth playerHealth = playerHitbox.GetComponent<PlayerHealth>();
+                        playerHealth.OnPlayerReceiveDamage("Normal");
+                    }
+                    break;
+                }
+        }
+    }
 
 
 
@@ -600,6 +667,7 @@ public class EnemyController : MonoBehaviour
         else if (isParrying)
         {
             inStateFor = 2;
+            offensiveCooldown = 0.25f;
             combatState = "Aggressive";
             playerController.Invoke("BeenParried", 0.08f);
         }

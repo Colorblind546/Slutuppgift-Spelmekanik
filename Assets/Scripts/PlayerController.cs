@@ -53,6 +53,9 @@ public class PlayerController : MonoBehaviour
     public UnityEvent moveLeftEvent = new UnityEvent();
     public UnityEvent moveRightEvent = new UnityEvent();
 
+    // Player is dead
+    static public bool playerIsDead;
+
     private void Start()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();

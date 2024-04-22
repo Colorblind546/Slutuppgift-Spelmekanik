@@ -21,6 +21,14 @@ public class PlayerHealth : MonoBehaviour
         
     }
 
+    private void FixedUpdate()
+    {
+        if (health <= 0)
+        {
+            Die();
+        }
+    }
+
     public void RechargeArmour()
     {
         if (armour < 3 && armour > 0 && playerEnergy.energy == 100)
@@ -32,10 +40,20 @@ public class PlayerHealth : MonoBehaviour
 
     public void OnPlayerReceiveDamage(string damageType)
     {
+        if (armour <= 0)
+        {
+            health--;
+        }
         if (armour > 0)
         {
             armour--;
         }
 
     }
+
+    private void Die()
+    {
+        Destroy(gameObject, 3);
+    }
+
 }
