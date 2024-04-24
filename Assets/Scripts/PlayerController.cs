@@ -46,6 +46,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float moveSpeed;
     [SerializeField] float jumpHeight;
 
+    // Defensive maneuvers
+    public bool isBlocking;
+    [SerializeField] float blockCooldown;
+
+    // Energy script
+    PlayerEnergy playerEnergy;
 
     // Events
     UnityEvent slashAttackEvent = new UnityEvent();
@@ -60,6 +66,7 @@ public class PlayerController : MonoBehaviour
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         playerAnimations = GetComponent<Animator>();
+        playerEnergy = GetComponent<PlayerEnergy>();
 
         moveLeftEvent.AddListener(HoldingLeft);
         moveRightEvent.AddListener(HoldingRight);
@@ -83,6 +90,16 @@ public class PlayerController : MonoBehaviour
         {
             slashAttackEvent.Invoke();
         }
+        if ((Input.GetMouseButton(1) || Input.GetKey(KeyCode.K)) && blockCooldown <= 0)
+        {
+            isBlocking = true;
+        }
+        else
+        {
+            isBlocking = false;
+        }
+        
+        
         rotationLock = Input.GetKey(KeyCode.L);
         if (Input.GetKeyDown(KeyCode.Space) && actionsAvailable && !inAir)
         {
@@ -138,6 +155,11 @@ public class PlayerController : MonoBehaviour
             moveVelocityY = 0f;
         }
 
+        if (!isBlocking)
+        {
+            blockCooldown -= Time.fixedDeltaTime;
+        }
+
 
         AnimatorStateInfo animatorState = playerAnimations.GetCurrentAnimatorStateInfo(0);
         foreach (string state in nonActionLockedStates)
@@ -154,7 +176,7 @@ public class PlayerController : MonoBehaviour
         }
 
 
-        // Checks whether player is moving towards the direction they are facing, whether that be the mouse, or direction lock on keyboard
+        // Checks whether playerPrefab is moving towards the direction they are facing, whether that be the mouse, or direction lock on keyboard
         float movingTowardsMouse;
         float mouseToPlayerVector = Input.mousePosition.x - Camera.main.WorldToScreenPoint(transform.position).x;
         float mouseIsLeftOrRight = mouseToPlayerVector / Mathf.Abs(mouseToPlayerVector);
@@ -196,37 +218,7 @@ public class PlayerController : MonoBehaviour
     }
 
 
-    void RapierSlash()
-    {
-        playerAnimations.SetTrigger("RapierSlashAttack");
-
-        int frameCount = Mathf.CeilToInt(rapierSlashAnim.length * rapierSlashAnim.frameRate);
-        Invoke("RapierSlashHit", rapierSlashAnim.length / frameCount * 1);
-    }
-    private void RapierSlashHit()
-    {
-        Debug.Log("Slash");
-        try
-        {
-            Collider2D[] enemiesHit = Physics2D.OverlapCircleAll(rapierSlashHitCheck[leftRightInt].transform.position, 1f, enemy);
-            foreach (Collider2D enemy in enemiesHit)
-            {
-                try
-                {
-                    GameObject enemyGameObj = enemy.gameObject;
-                    EnemyHealth enemyHealth = enemyGameObj.GetComponent<EnemyHealth>();
-                    enemyHealth.BeenHit(10, "Slash");
-                }
-                catch
-                {
-                    Debug.Log("NoHits");
-                }
-            }
-        }
-        catch
-        {
-        }
-    }
+    
     /// <summary>
     /// When Called, increases/decreses moveVelocityX to make the character mover right or left
     /// </summary>
@@ -248,13 +240,13 @@ public class PlayerController : MonoBehaviour
     }
     private void NotHoldingLeftOrRight()
     {
-        if (moveVelocityX < 0)
-        {
-            moveVelocityX += moveSpeed * 2.5f * Time.fixedDeltaTime;
-        }
         if (moveVelocityX > 0)
         {
-            moveVelocityX += -moveSpeed * 2.5f * Time.fixedDeltaTime;
+            moveVelocityX -= moveSpeed * 2.5f * Time.fixedDeltaTime;
+        }
+        else if (moveVelocityX < 0)
+        {
+            moveVelocityX += moveSpeed * 2.5f * Time.fixedDeltaTime;
         }
         if (Mathf.Abs(moveVelocityX) < 0.1f)
         {
@@ -262,7 +254,7 @@ public class PlayerController : MonoBehaviour
         }
     }
     /// <summary>
-    /// When called, decreases/increases player moveVelocityX to bring it closer to 0, when within 0,1 of 0, sets it to 0
+    /// When called, decreases/increases playerPrefab moveVelocityX to bring it closer to 0, when within 0,1 of 0, sets it to 0
     ///  <summary>
 
 
@@ -273,9 +265,51 @@ public class PlayerController : MonoBehaviour
     }
 
 
-    public void BeenParried()
+
+    void RapierSlash()
+    {
+        playerAnimations.SetTrigger("RapierSlashAttack");
+
+        int frameCount = Mathf.CeilToInt(rapierSlashAnim.length * rapierSlashAnim.frameRate);
+        Invoke("RapierSlashHit", rapierSlashAnim.length / frameCount * 1);
+    }
+    private void RapierSlashHit()
+    {
+        Debug.Log("Slash");
+        try
+        {
+            Collider2D[] enemiesHit = Physics2D.OverlapCircleAll(rapierSlashHitCheck[leftRightInt].transform.position, 1f, enemy);
+            foreach (Collider2D enemy in enemiesHit)
+            {
+                if (enemy != null)
+                {
+                    GameObject enemyGameObj = enemy.gameObject;
+                    EnemyHealth enemyHealth = enemyGameObj.GetComponent<EnemyHealth>();
+                    playerEnergy.RechargeEnergy(10);
+                    enemyHealth.BeenHit(10, "Slash");
+                }
+                
+            }
+        }
+        catch
+        {
+
+        }
+    }
+
+    public void Staggered()
     {
         playerAnimations.SetTrigger("Parried");
+    }
+
+
+
+
+
+    public void BlockedAnAttack()
+    {
+        blockCooldown = 5;
+        isBlocking = false;
     }
 }
 

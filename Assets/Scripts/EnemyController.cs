@@ -6,7 +6,7 @@ using UnityEngine;
 public class EnemyController : MonoBehaviour
 {
 
-    // Player and player detection related variables
+    // Player and playerPrefab detection related variables
     GameObject player;
     PlayerController playerController;
     Animator playerAnimations;
@@ -63,17 +63,13 @@ public class EnemyController : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        // Finds player in scene, if an exception occurs, Writes "Player not found" in console
-        try
+        // Finds playerPrefab in scene, if an exception occurs, Writes "Player not found" in console
+        if (player == null)
         {
-            player = GameObject.Find("Player");
-            Debug.Log("Player found");
+            FindPlayer();
         }
-        catch
-        {
-            Debug.Log("Player not found");
-        }
-
+        
+        
 
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
@@ -106,6 +102,8 @@ public class EnemyController : MonoBehaviour
             playerSpotted = false;
         }
 
+        
+
         if (enemyType == "Basic" && player != null)
         {
             BasicEnemyUpdate();
@@ -118,6 +116,10 @@ public class EnemyController : MonoBehaviour
         if (player == null)
         {
             playerSpotted = false;
+        }
+        if (player == null)
+        {
+            FindPlayer();
         }
         if (enemyType == "Basic" && player != null)
         {
@@ -223,7 +225,7 @@ public class EnemyController : MonoBehaviour
                 {
                     case 1:
                         {
-                            offensiveCooldown = 0.25f;
+                            offensiveCooldown = 0.5f;
                             combatState = "Aggressive";
                                 break;
                         }
@@ -248,7 +250,7 @@ public class EnemyController : MonoBehaviour
                 /* Enemy Is Aggressive.
                  * An Aggressive enemy will move in close, to a range where dodging is impossible,
                  * it will have a near complete disregard for survival, with the exception of an occasional parry.
-                 * An Aggressive enemy is just as fast as the player, and accelerates substantially faster, cannot be outrun
+                 * An Aggressive enemy is just as fast as the playerPrefab, and accelerates substantially faster, cannot be outrun
                  * On occasion an attack against an Aggressive enemy will be met with a parry.
                  * An Aggressive enemy will not stay aggressive for long and will almost immediately switch back to being Cautious or Defensive
                  */
@@ -261,19 +263,20 @@ public class EnemyController : MonoBehaviour
 
                         if (offensiveCooldown <= 0)
                         {
-                            Invoke("StartAttack", 0);
+                            Debug.Log("StartAttack has been called");
+                            StartAttack();
                         }
 
-                        // If enemy is within preferred range of distance from the player when aggressive, it will attempt to keep that distance
+                        // If enemy is within preferred range of distance from the playerPrefab when aggressive, it will attempt to keep that distance
                         if (Mathf.Abs(Mathf.Abs(playerDistance) - preferredCombatDistance) < 0.25f)
                         {
                             SlowDown();
                         }
 
-                        // If enemy is farther than preferred distance from the player it will attempt to close it
+                        // If enemy is farther than preferred distance from the playerPrefab it will attempt to close it
                         else if (Mathf.Abs(playerDistance) > preferredCombatDistance && !isBusy)
                         {
-                            // Moves the enemy based on which side it is on in relation to the player
+                            // Moves the enemy based on which side it is on in relation to the playerPrefab
                             if (isPlayerToLeft)
                             {
                                 MoveLeft();
@@ -284,10 +287,10 @@ public class EnemyController : MonoBehaviour
                             }
                         }
 
-                        // If enemy is closer than preferred distance from the player it will attempt to make distance
+                        // If enemy is closer than preferred distance from the playerPrefab it will attempt to make distance
                         if (Mathf.Abs(playerDistance) < preferredCombatDistance && !isBusy)
                         {
-                            // Moves the enemy based on which side it is on in relation to the player
+                            // Moves the enemy based on which side it is on in relation to the playerPrefab
                             if (isPlayerToLeft)
                             {
                                 MoveRight();
@@ -305,7 +308,7 @@ public class EnemyController : MonoBehaviour
                             if (nextState == 0)
                             {
                                 combatState = "Cautious";
-                                inStateFor = 5;
+                                inStateFor = 3.5f;
                             }
                             else
                             {
@@ -328,7 +331,7 @@ public class EnemyController : MonoBehaviour
                 /* Enemy Is Defensive
                  * When Defensive the enemy will be at a closer range where it is barely within attacking range
                  * A Defensive enemy is slow, with a slow acceleration, can be outrun
-                 * Any attempted attacks against a Defensive enemy will be met with a parry stunning the player for just under a second or a block, mitigating all damage 
+                 * Any attempted attacks against a Defensive enemy will be met with a parry stunning the playerPrefab for just under a second or a block, mitigating all damage 
                  * A Defensive enemy can change to any state, with the exception being it immediately becoming aggressive when landing a successful parry
                  */
                 case "Defensive":
@@ -337,16 +340,26 @@ public class EnemyController : MonoBehaviour
                         moveAcceleration = 8;
                         preferredCombatDistance = 2.75f;
 
-                        // If enemy is within preferred range of distance from the player when defensive, it will attempt to keep that distance
+                        if (offensiveCooldown <= 0)
+                        {
+                            int rand = Random.Range(1, 4);
+                            if (rand == 1)
+                            {
+                                Debug.Log("StartAttack has been called");
+                                StartAttack();
+                            }
+                        }
+
+                        // If enemy is within preferred range of distance from the playerPrefab when defensive, it will attempt to keep that distance
                         if (Mathf.Abs(Mathf.Abs(playerDistance) - preferredCombatDistance) < 0.25f)
                         {
                             SlowDown();
                         }
 
-                        // If enemy is farther than preferred distance from the player it will attempt to close it
+                        // If enemy is farther than preferred distance from the playerPrefab it will attempt to close it
                         else if (Mathf.Abs(playerDistance) > preferredCombatDistance && !isBusy)
                         {
-                            // Moves the enemy based on which side it is on in relation to the player
+                            // Moves the enemy based on which side it is on in relation to the playerPrefab
                             if (isPlayerToLeft)
                             {
                                 MoveLeft();
@@ -357,10 +370,10 @@ public class EnemyController : MonoBehaviour
                             }
                         }
 
-                        // If enemy is closer than preferred distance from the player it will attempt to make distance
+                        // If enemy is closer than preferred distance from the playerPrefab it will attempt to make distance
                         if (Mathf.Abs(playerDistance) < preferredCombatDistance && !isBusy)
                         {
-                            // Moves the enemy based on which side it is on in relation to the player
+                            // Moves the enemy based on which side it is on in relation to the playerPrefab
                             if (isPlayerToLeft)
                             {
                                 MoveRight();
@@ -394,14 +407,14 @@ public class EnemyController : MonoBehaviour
                             int nextState = Random.Range(0, 2);
                             if (nextState == 0)
                             {
-                                offensiveCooldown = 0.25f;
+                                offensiveCooldown = 0.5f;
                                 combatState = "Aggressive";
                                 inStateFor = 2;
                             }
                             else
                             {
                                 combatState = "Cautious";
-                                inStateFor = 5;
+                                inStateFor = 3.5f;
                             }
                         }
                             break;
@@ -417,7 +430,7 @@ public class EnemyController : MonoBehaviour
                 /* 
                  * Enemy Is Cautious 
                  * When Cautious the enemy will try to keep itself at a safer distance
-                 * A Defensive enemy is slighty slower than the player, but accelerates at the same speed, can be outrun (if only just)
+                 * A Defensive enemy is slighty slower than the playerPrefab, but accelerates at the same speed, can be outrun (if only just)
                  * Any attempted attacks at a Cautious enemy will cause it to backstep and dodge the attack
                  * A Cautious enemy can can change to any state
                  */
@@ -427,16 +440,16 @@ public class EnemyController : MonoBehaviour
                         moveAcceleration = 10;
                         preferredCombatDistance = 3.5f;
 
-                        // If enemy is within preferred range of distance from the player when cautious, it will attempt to keep that distance
+                        // If enemy is within preferred range of distance from the playerPrefab when cautious, it will attempt to keep that distance
                         if (Mathf.Abs(Mathf.Abs(playerDistance) - preferredCombatDistance) < 0.25f)
                         {
                             SlowDown();
                         }
 
-                        // If the enemy is farther than the preferred distance from the player, it will attempt to close the distance
+                        // If the enemy is farther than the preferred distance from the playerPrefab, it will attempt to close the distance
                         else if (Mathf.Abs(playerDistance) > preferredCombatDistance && !isBusy)
                         {
-                            // Moves the enemy based on which side it is on in relation to the player
+                            // Moves the enemy based on which side it is on in relation to the playerPrefab
                             if (isPlayerToLeft)
                             {
                                 MoveLeft();
@@ -447,10 +460,10 @@ public class EnemyController : MonoBehaviour
                             }
                         }
 
-                        // If enemy is closer than preferred distance from the player it will attempt to make distance
+                        // If enemy is closer than preferred distance from the playerPrefab it will attempt to make distance
                         if (Mathf.Abs(playerDistance) < preferredCombatDistance && !isBusy)
                         {
-                            // Moves the enemy based on which side it is on in relation to the player
+                            // Moves the enemy based on which side it is on in relation to the playerPrefab
                             if (isPlayerToLeft)
                             {
                                 MoveRight();
@@ -464,7 +477,7 @@ public class EnemyController : MonoBehaviour
                     
                         dodgeCooldown -= Time.fixedDeltaTime; // Countdown to make the enemy not spam dodge
 
-                        // This will cause the enemy to dodge when the player uses the attack that the "RapierSlash" animation is attached to
+                        // This will cause the enemy to dodge when the playerPrefab uses the attack that the "RapierSlash" animation is attached to
                         if (playerAnimations.GetCurrentAnimatorStateInfo(0).IsName("RapierSlash") && dodgeCooldown <= 0f && !isBusy)
                         {
                             dodgeCooldown = 2;
@@ -544,7 +557,22 @@ public class EnemyController : MonoBehaviour
 
 
 
-
+    void FindPlayer()
+    {
+        try
+        {
+            player = GameObject.FindGameObjectWithTag("Player");
+            if (player != null)
+            {
+                Debug.Log("Player Found");
+                playerController = player.GetComponent<PlayerController>();
+                playerAnimations = player.GetComponent<Animator>();
+            }
+        }
+        catch
+        {
+        }
+    }
 
 
 
@@ -555,6 +583,7 @@ public class EnemyController : MonoBehaviour
         offensiveCooldown = 3;
         animator.SetTrigger("BasicSlash");
         Invoke("AttackHitCheck", hitFrameDelay);
+        Debug.Log("Attack delay: " + hitFrameDelay);
     }
 
     private void AttackHitCheck()
@@ -640,7 +669,7 @@ public class EnemyController : MonoBehaviour
         isBlocking = false;
     }
 
-    // Will start parrying, blocking oncoming damage, and stunning the player
+    // Will start parrying, blocking oncoming damage, and stunning the playerPrefab
     void Parry()
     {
         isParrying = true;
@@ -663,13 +692,13 @@ public class EnemyController : MonoBehaviour
             health.ReceiveDamage(damage, damageType);
         }
 
-        // Will cause the player to stagger
+        // Will cause the playerPrefab to stagger
         else if (isParrying)
         {
             inStateFor = 2;
             offensiveCooldown = 0.25f;
             combatState = "Aggressive";
-            playerController.Invoke("BeenParried", 0.08f);
+            playerController.Invoke("Staggered", 0.08f);
         }
 
         // Returns the damage taken as 0, and type as blocked unless if attack is "Unblockable", in which case damage and damageType stay the same

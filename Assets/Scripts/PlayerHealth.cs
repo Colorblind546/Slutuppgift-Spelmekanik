@@ -7,12 +7,21 @@ public class PlayerHealth : MonoBehaviour
     [SerializeField] int health;
     [SerializeField] int armour;
 
+    // Player rendering related variables
+    SpriteRenderer playerRenderer;
+
+
+    // PlayerController ralated variables
+    PlayerController playerController;
+
     PlayerEnergy playerEnergy;
 
     // Start is called before the first frame update
     void Start()
     {
-        playerEnergy = FindObjectOfType<PlayerEnergy>();
+        playerEnergy = GetComponent<PlayerEnergy>();
+        playerController = GetComponent<PlayerController>();
+        playerRenderer = GetComponent<SpriteRenderer>();
     }
 
     // Update is called once per frame
@@ -40,15 +49,32 @@ public class PlayerHealth : MonoBehaviour
 
     public void OnPlayerReceiveDamage(string damageType)
     {
-        if (armour <= 0)
+        if (playerController.isBlocking && playerEnergy.UseEnergy(20))
+        {
+            playerRenderer.color = Color.cyan;
+            Invoke("ResetColor", 0.2f);
+            playerController.BlockedAnAttack();
+        }
+        else if (armour <= 0)
         {
             health--;
+            playerRenderer.color = Color.red;
+            Invoke("ResetColor", 0.1f);
         }
-        if (armour > 0)
+        else if (armour > 0)
         {
             armour--;
+            playerRenderer.color = Color.red;
+            Invoke("ResetColor", 0.1f);
         }
+        
 
+
+    }
+
+    public void ResetColor()
+    {
+        playerRenderer.color = Color.white;
     }
 
     private void Die()

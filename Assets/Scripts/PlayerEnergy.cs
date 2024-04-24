@@ -13,7 +13,7 @@ public class PlayerEnergy : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+        energy = 50;
     } 
 
     // Update is called once per frame
@@ -29,7 +29,7 @@ public class PlayerEnergy : MonoBehaviour
 
     public bool UseEnergy(int energyNeeded)
     {
-        bool canUse = energy > energyNeeded;
+        bool canUse = energy >= energyNeeded;
         if (canUse)
         {
             energy -= energyNeeded;

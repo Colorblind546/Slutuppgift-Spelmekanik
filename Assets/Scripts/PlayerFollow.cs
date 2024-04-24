@@ -5,7 +5,10 @@ using UnityEngine;
 public class PlayerFollow : MonoBehaviour
 {
 
-    [SerializeField] GameObject player;
+    GameObject player;
+
+
+    LayerMask playerLayer;
     // Start is called before the first frame update
     void Start()
     {
@@ -20,5 +23,24 @@ public class PlayerFollow : MonoBehaviour
             transform.position = player.transform.position - (Vector3.forward * 10);
         }
         
+    }
+
+    private void FixedUpdate()
+    {
+        if (player == null)
+        {
+            FindPlayer();
+        }
+    }
+
+    void FindPlayer()
+    {
+        try
+        {
+            player = GameObject.FindGameObjectWithTag("Player");
+        }
+        catch
+        {
+        }
     }
 }
