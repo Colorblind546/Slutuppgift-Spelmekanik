@@ -68,7 +68,7 @@ MonoBehaviour:
     m_Bits: 128
   playerAnimations: {fileID: 538062429315142000}
   rapierSlashAnim: {fileID: 7400000, guid: e030b83bb77efb8429834e8e65a21644, type: 2}
-  parryAnim: {fileID: 0}
+  parryAnim: {fileID: 7400000, guid: 96f4dfbb5ee2c144380d61676b3bfa11, type: 2}
   actionsAvailable: 1
   inAir: 0
   isHoldingLeftOrRight: 0
@@ -83,6 +83,8 @@ MonoBehaviour:
   jumpHeight: 5
   isBlocking: 0
   blockCooldown: 0
+  isParrying: 0
+  parryCooldownReset: 1
   jumpEvent:
     m_PersistentCalls:
       m_Calls: []

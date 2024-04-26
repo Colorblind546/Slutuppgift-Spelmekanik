@@ -56,6 +56,9 @@ public class PlayerController : MonoBehaviour
     // Defensive maneuvers
     public bool isBlocking;
     [SerializeField] float blockCooldown;
+    public bool isParrying;
+    float parryCooldown = 0;
+    [SerializeField] float parryCooldownReset;
 
     // PlayerHealth script
     PlayerHealth playerHealth;
@@ -74,10 +77,6 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
-        if (parryAnim != null)
-        {
-            parryAnim = GetComponent<AnimationClip>();
-        }
         spriteRenderer = GetComponent<SpriteRenderer>();
         playerAnimations = GetComponent<Animator>();
         playerEnergy = GetComponent<PlayerEnergy>();
@@ -92,6 +91,8 @@ public class PlayerController : MonoBehaviour
         moveVelocityX = 0f;
         moveVelocityY = 0f;
 
+        
+
     }
 
     /// <summary>
@@ -104,7 +105,7 @@ public class PlayerController : MonoBehaviour
          */
 
 
-        if ((Input.GetMouseButton(1) || Input.GetKey(KeyCode.K)) && blockCooldown <= 0)
+        if ((Input.GetMouseButton(1) || Input.GetKey(KeyCode.K)) && blockCooldown <= 0 && !isParrying)
         {
             isBlocking = true;
         }
@@ -113,13 +114,14 @@ public class PlayerController : MonoBehaviour
             isBlocking = false;
         }
         // When the player presses the attack key invokes slashAttackEvent
-        if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.J)) && actionsAvailable && !inAir && !isBlocking)
+        if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.J)) && actionsAvailable && !inAir && !(Input.GetMouseButton(1) || Input.GetKey(KeyCode.K)))
         {
             slashAttackEvent.Invoke();
         }
-        if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.J)) && isBlocking)
+        if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.J)) && (Input.GetMouseButton(1) || Input.GetKey(KeyCode.K)) && parryCooldown <= 0)
         {
-            
+            Parry();
+            parryCooldown = parryCooldownReset;
         }
         
         
@@ -190,9 +192,14 @@ public class PlayerController : MonoBehaviour
             moveVelocityX = 0;
         }
 
-        if (!isBlocking)
+        if (!isBlocking && blockCooldown > 0)
         {
             blockCooldown -= Time.fixedDeltaTime;
+        }
+
+        if (!isParrying && parryCooldown > 0)
+        {
+            parryCooldown -= Time.fixedDeltaTime;
         }
 
 
@@ -341,19 +348,23 @@ public class PlayerController : MonoBehaviour
 
     private void Parry()
     {
-        playerAnimations.SetTrigger("Parry");
-        float parryFrameTimeStart = parryAnim.length / parryAnim.frameRate * 0; /* PlaceHolder Frame Number */
-        float parryFrameTimeEnd = parryAnim.length / parryAnim.frameRate * 0; /* PlaceHolder Frame Number */
-        Invoke("ParryFrames", parryFrameTimeStart);
-        Invoke("ParryEnd", 1f);
+        if (parryAnim != null)
+        {
+            playerAnimations.SetTrigger("Parry");
+            float parryFrameTimeStart = parryAnim.length / Mathf.CeilToInt(parryAnim.length * parryAnim.frameRate) * 3; /* PlaceHolder Start Frame Number */
+            float parryFrameTimeEnd = parryAnim.length / Mathf.CeilToInt(parryAnim.length * parryAnim.frameRate) * 5; /* PlaceHolder End Frame Number */
+            Invoke("ParryFrames", parryFrameTimeStart);
+            Invoke("ParryEnd", parryFrameTimeEnd);
+        }
+        
     }
     private void ParryFrames()
     {
-
+        isParrying = true;
     }
     private void ParryEnd()
     {
-
+        isParrying = false;
     }
 
     public void Staggered()

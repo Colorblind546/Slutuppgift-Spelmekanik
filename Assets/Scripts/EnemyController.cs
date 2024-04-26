@@ -16,6 +16,7 @@ public class EnemyController : MonoBehaviour
     // Health related varibles
     string enemyType;
     EnemyHealth healthStats;
+    bool isDead = false;
 
     // Movement related variables
     [SerializeField] float maxMoveSpeed;
@@ -196,7 +197,7 @@ public class EnemyController : MonoBehaviour
         }
 
         AnimatorStateInfo animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
-        hitFrameDelay = darkKnightBasicSlash.length / darkKnightBasicSlash.frameRate * 5;
+        hitFrameDelay = darkKnightBasicSlash.length / darkKnightBasicSlash.frameRate * 4;
         
 
         animator.SetFloat("SpeedWalkingTowards", velocityX);
@@ -594,11 +595,11 @@ public class EnemyController : MonoBehaviour
                 {
                     Debug.Log("Attack Check Successful");
                     Collider2D playerHitbox = Physics2D.OverlapCircle(leftHitCheck.transform.position, 1.25f, playerLayer);
-                    if (playerHitbox != null)
+                    if (playerHitbox != null && !isDead)
                     {
                         Debug.Log("PlayerHit");
                         PlayerHealth playerHealth = playerHitbox.GetComponent<PlayerHealth>();
-                        playerHealth.OnPlayerReceiveDamage("Normal");
+                        playerHealth.OnPlayerReceiveDamage("Normal", gameObject);
                     }
                     break;
                 }
@@ -606,11 +607,11 @@ public class EnemyController : MonoBehaviour
                 {
                     Debug.Log("Attack Check Successful");
                     Collider2D playerHitbox = Physics2D.OverlapCircle(rightHitCheck.transform.position, 1.25f, playerLayer);
-                    if (playerHitbox != null)
+                    if (playerHitbox != null && !isDead)
                     {
                         Debug.Log("PlayerHit");
                         PlayerHealth playerHealth = playerHitbox.GetComponent<PlayerHealth>();
-                        playerHealth.OnPlayerReceiveDamage("Normal");
+                        playerHealth.OnPlayerReceiveDamage("Normal", gameObject);
                     }
                     break;
                 }
@@ -714,13 +715,17 @@ public class EnemyController : MonoBehaviour
 
     }
 
+    public void Staggered()
+    {
+        Debug.Log("Staggered");
+    }
 
 
 
     private void Die()
     {
 
-
+        isDead = true;
         animator.SetTrigger("Die");
         Destroy(gameObject, 3f);
     }

@@ -47,13 +47,21 @@ public class PlayerHealth : MonoBehaviour
         }
     }
 
-    public void OnPlayerReceiveDamage(string damageType)
+    public void OnPlayerReceiveDamage(string damageType, GameObject attackOrigin)
     {
+        EnemyController enemyController = attackOrigin.GetComponent<EnemyController>();
+        
+
         if (playerController.isBlocking && playerEnergy.UseEnergy(20))
         {
             playerRenderer.color = Color.cyan;
             Invoke("ResetColor", 0.2f);
             playerController.BlockedAnAttack();
+        }
+        else if (playerController.isParrying)
+        {
+            enemyController.Staggered();
+            playerEnergy.RechargeEnergy(100);
         }
         else if (armour <= 0)
         {

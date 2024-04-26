@@ -186,7 +186,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerSpotted: 0
-  visionRange: 15
+  visionRange: 5
   maxMoveSpeed: 0
   moveAcceleration: 0
   combatState: 
