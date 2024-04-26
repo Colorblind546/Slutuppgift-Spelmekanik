@@ -22,9 +22,14 @@ public class PlayerEnergy : MonoBehaviour
         
     }
 
+    private void FixedUpdate()
+    {
+        energy = Mathf.Clamp(energy, 0, 100);
+    }
+
     public void RechargeEnergy(int rechargeAmount)
     {
-
+        energy += rechargeAmount;
     }
 
     public bool UseEnergy(int energyNeeded)

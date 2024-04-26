@@ -6,7 +6,7 @@ public class PlayerFollow : MonoBehaviour
 {
 
     GameObject player;
-
+    [SerializeField] float offsetY;
 
     LayerMask playerLayer;
     // Start is called before the first frame update
@@ -18,10 +18,7 @@ public class PlayerFollow : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (player != null)
-        {
-            transform.position = player.transform.position - (Vector3.forward * 10);
-        }
+        
         
     }
 
@@ -30,6 +27,12 @@ public class PlayerFollow : MonoBehaviour
         if (player == null)
         {
             FindPlayer();
+        }
+
+
+        if (player != null)
+        {
+            transform.position = player.transform.position - (Vector3.forward * 10) + (Vector3.up * offsetY);
         }
     }
 

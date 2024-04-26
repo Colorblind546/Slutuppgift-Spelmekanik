@@ -8,6 +8,12 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     [SerializeField] GameObject groundCheck;
     [SerializeField] GameObject[] rapierSlashHitCheck;
+    [SerializeField] GameObject leftColliderCheck;
+    [SerializeField] GameObject rightColliderCheck;
+
+
+    bool isColliderLeft;
+    bool isColliderRight;
     /// <summary>
     /// Collision and HitDetection /\ /\ /\
     /// </summary>
@@ -26,6 +32,7 @@ public class PlayerController : MonoBehaviour
     public Animator playerAnimations;
     SpriteRenderer spriteRenderer;
     [SerializeField] AnimationClip rapierSlashAnim;
+    [SerializeField] AnimationClip parryAnim;
 
     // Booleans for whether or not some types of actions can be performed
     [SerializeField] bool actionsAvailable = true;
@@ -50,6 +57,9 @@ public class PlayerController : MonoBehaviour
     public bool isBlocking;
     [SerializeField] float blockCooldown;
 
+    // PlayerHealth script
+    PlayerHealth playerHealth;
+
     // Energy script
     PlayerEnergy playerEnergy;
 
@@ -64,9 +74,15 @@ public class PlayerController : MonoBehaviour
 
     private void Start()
     {
+        if (parryAnim != null)
+        {
+            parryAnim = GetComponent<AnimationClip>();
+        }
         spriteRenderer = GetComponent<SpriteRenderer>();
         playerAnimations = GetComponent<Animator>();
         playerEnergy = GetComponent<PlayerEnergy>();
+        playerHealth = GetComponent<PlayerHealth>();
+
 
         moveLeftEvent.AddListener(HoldingLeft);
         moveRightEvent.AddListener(HoldingRight);
@@ -86,10 +102,8 @@ public class PlayerController : MonoBehaviour
         /*
          * Handles inputs or lack there of
          */
-        if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.J)) && actionsAvailable && !inAir)
-        {
-            slashAttackEvent.Invoke();
-        }
+
+
         if ((Input.GetMouseButton(1) || Input.GetKey(KeyCode.K)) && blockCooldown <= 0)
         {
             isBlocking = true;
@@ -98,6 +112,16 @@ public class PlayerController : MonoBehaviour
         {
             isBlocking = false;
         }
+        // When the player presses the attack key invokes slashAttackEvent
+        if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.J)) && actionsAvailable && !inAir && !isBlocking)
+        {
+            slashAttackEvent.Invoke();
+        }
+        if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.J)) && isBlocking)
+        {
+            
+        }
+        
         
         
         rotationLock = Input.GetKey(KeyCode.L);
@@ -143,6 +167,8 @@ public class PlayerController : MonoBehaviour
     {
         // Collision detection \/ \/ \/
         inAir = !Physics2D.OverlapBox(groundCheck.transform.position, new Vector2(1.3f, 0f), 0f, ground);
+        isColliderLeft = Physics2D.OverlapBox(leftColliderCheck.transform.position, new Vector2(0, 2.5f), 0, ground);
+        isColliderRight = Physics2D.OverlapBox(rightColliderCheck.transform.position, new Vector2(0, 2.5f), 0, ground);
 
         // Collision detection /\ /\ /\
 
@@ -153,6 +179,15 @@ public class PlayerController : MonoBehaviour
         else if (!inAir && moveVelocityY < 0f)
         {
             moveVelocityY = 0f;
+        }
+
+        if (isColliderLeft && moveVelocityX < 0)
+        {
+            moveVelocityX = 0;
+        }
+        if (isColliderRight && moveVelocityX > 0)
+        {
+            moveVelocityX = 0;
         }
 
         if (!isBlocking)
@@ -276,25 +311,49 @@ public class PlayerController : MonoBehaviour
     private void RapierSlashHit()
     {
         Debug.Log("Slash");
-        try
+        Collider2D[] enemiesHit = Physics2D.OverlapCircleAll(rapierSlashHitCheck[leftRightInt].transform.position, 1f, enemy);
+        if (enemiesHit != null)
         {
-            Collider2D[] enemiesHit = Physics2D.OverlapCircleAll(rapierSlashHitCheck[leftRightInt].transform.position, 1f, enemy);
             foreach (Collider2D enemy in enemiesHit)
             {
                 if (enemy != null)
                 {
+                    Debug.Log("Enemy isn't Null");
                     GameObject enemyGameObj = enemy.gameObject;
                     EnemyHealth enemyHealth = enemyGameObj.GetComponent<EnemyHealth>();
                     playerEnergy.RechargeEnergy(10);
                     enemyHealth.BeenHit(10, "Slash");
                 }
-                
+                else
+                {
+                    Debug.Log("Enemy is Null");
+                }
+
             }
         }
-        catch
+        else
         {
-
+            Debug.Log("No enemies hit");
         }
+        
+    }
+
+
+    private void Parry()
+    {
+        playerAnimations.SetTrigger("Parry");
+        float parryFrameTimeStart = parryAnim.length / parryAnim.frameRate * 0; /* PlaceHolder Frame Number */
+        float parryFrameTimeEnd = parryAnim.length / parryAnim.frameRate * 0; /* PlaceHolder Frame Number */
+        Invoke("ParryFrames", parryFrameTimeStart);
+        Invoke("ParryEnd", 1f);
+    }
+    private void ParryFrames()
+    {
+
+    }
+    private void ParryEnd()
+    {
+
     }
 
     public void Staggered()
