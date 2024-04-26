@@ -475,7 +475,7 @@ public class EnemyController : MonoBehaviour
                             }
                         }
 
-                    
+
                         dodgeCooldown -= Time.fixedDeltaTime; // Countdown to make the enemy not spam dodge
 
                         // This will cause the enemy to dodge when the playerPrefab uses the attack that the "RapierSlash" animation is attached to
@@ -640,9 +640,6 @@ public class EnemyController : MonoBehaviour
     void MoveRight()
     {
         velocityX += moveAcceleration * Time.fixedDeltaTime;
-
-
-
     }
 
     // When called, immediately sets the velocity to make the enemy instantly start moving left

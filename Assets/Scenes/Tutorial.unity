@@ -2310,18 +2310,17 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Mouse: Mouse2 to Block
+  m_text: 'Mouse: Mouse2 + Mouse1 to Parry
 
-    Keyboard: K to Block
+    Keyboard: K + J to Parry
 
-    When when successfully
-    defending from an attack, defender flashes blue
+    When
+    successfully parrying, enemy will be staggered
 
-    After successfully defending
-    from an attack, there is a cooldown before being able to do it again
+    Parrying has no prerequisites
 
-    Blocking
-    requires energy'
+    It
+    will fully recharge energy'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
