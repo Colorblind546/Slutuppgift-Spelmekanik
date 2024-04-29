@@ -584,7 +584,7 @@ public class EnemyController : MonoBehaviour
     {
         offensiveCooldown = 3;
         animator.SetTrigger("BasicSlash");
-        Invoke("AttackHitCheck", hitFrameDelay);
+        Invoke("AttackHitCheck", hitFrameDelay * 0.8f);
         Debug.Log("Attack delay: " + hitFrameDelay);
     }
 
