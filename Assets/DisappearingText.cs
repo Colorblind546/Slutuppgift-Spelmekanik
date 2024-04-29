@@ -5,6 +5,7 @@ using UnityEngine;
 public class DisappearingText : MonoBehaviour
 {
     new Renderer renderer;
+    MeshRenderer meshRenderer;
     [SerializeField] float disappearTimer;
 
     [SerializeField] string textType;
@@ -12,6 +13,7 @@ public class DisappearingText : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        meshRenderer = GetComponent<MeshRenderer>();
         renderer = GetComponent<Renderer>();
     }
 
@@ -40,7 +42,14 @@ public class DisappearingText : MonoBehaviour
                 }
             case "WhenDead":
                 {
-
+                    if (GameObject.FindGameObjectWithTag("Player") != null)
+                    {
+                        meshRenderer.enabled = false;
+                    }
+                    else
+                    {
+                        meshRenderer.enabled = true;
+                    }
                     break;
                 }
 

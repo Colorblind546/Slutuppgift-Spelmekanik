@@ -194,6 +194,7 @@ MonoBehaviour:
   offensiveCooldown: 0
   attackFrameRate: 12
   darkKnightBasicSlash: {fileID: 7400000, guid: f2b905199c927a34fb20542844a9a981, type: 2}
+  darkKnightParry: {fileID: 7400000, guid: 34117ac9e3fa81c4aa46265ea130cb4e, type: 2}
   groundCheck: {fileID: 5702521784662137259}
   leftHitCheck: {fileID: 3721059507528256073}
   rightHitCheck: {fileID: 1944658105906938628}

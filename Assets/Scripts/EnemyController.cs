@@ -49,6 +49,7 @@ public class EnemyController : MonoBehaviour
     [SerializeField] int attackFrameRate;
     Animator animator;
     [SerializeField] AnimationClip darkKnightBasicSlash;
+    [SerializeField] AnimationClip darkKnightParry;
 
     // Collision checks
     [SerializeField] GameObject groundCheck;
@@ -671,6 +672,7 @@ public class EnemyController : MonoBehaviour
     void Parry()
     {
         isParrying = true;
+        animator.SetTrigger("Parry");
         Invoke("EndParry", 0.8f);
     }
 
@@ -683,6 +685,9 @@ public class EnemyController : MonoBehaviour
     // Will return the information about a damage source as is, unless if parried or blocked
     public void DefenceCheck(int damage, string damageType)
     {
+        int frames = Mathf.CeilToInt(darkKnightParry.length * darkKnightParry.frameRate);
+        float parryAttackDelay = darkKnightParry.length / frames * 6;
+
         // Will return normal damage values and types if it wasn't blocked
         if (!isBlocking && !isParrying)
         {
@@ -696,6 +701,7 @@ public class EnemyController : MonoBehaviour
             inStateFor = 2;
             offensiveCooldown = 0.25f;
             combatState = "Aggressive";
+            Invoke("AttackHitCheck", parryAttackDelay);
             playerController.Invoke("Staggered", 0.08f);
         }
 

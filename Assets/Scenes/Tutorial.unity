@@ -1123,7 +1123,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   disappearTimer: 0
-  textType: 
+  textType: WhenDead
 --- !u!114 &596805646
 MonoBehaviour:
   m_ObjectHideFlags: 0
