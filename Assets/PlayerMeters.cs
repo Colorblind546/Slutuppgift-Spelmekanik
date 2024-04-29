@@ -34,15 +34,15 @@ public class PlayerMeters : MonoBehaviour
     {
         if (player != null)
         {
-            energyMeter.transform.localPosition = energyMeterBasePos + new Vector3(((playerEnergy.energy / 100) * 3) / 2 - 1f, 0, 0);
-            energyMeter.transform.localScale = new Vector3((playerEnergy.energy / 100) * 3, 0.5f, 1);
-            Debug.Log("Energy: " + playerEnergy.energy);
-            shieldMeter.transform.localPosition = shieldMeterBasePos + new Vector3(playerHealth.shield / 2 - 1f, 0, 0);
+            energyMeter.transform.localPosition = energyMeterBasePos + new Vector3(((playerEnergy.energy / 100f) * 3f) / 2f - 1.5f, 0, 0);
+            energyMeter.transform.localScale = new Vector3((playerEnergy.energy / 100f) * 3f, 0.5f, 1);
+
+            shieldMeter.transform.localPosition = shieldMeterBasePos + new Vector3(playerHealth.shield / 2f - 1.5f, 0, 0);
             shieldMeter.transform.localScale = new Vector3(playerHealth.shield, 0.4f, 1);
-            Debug.Log("Shield: " + playerHealth.shield);
+
             healthMeter.transform.localPosition = healthMeterBasePos + new Vector3(((playerHealth.health) * 3) / 2 - 1f, 0, 0);
-            healthMeter.transform.localScale = new Vector3((playerHealth.health) * 3, 0.5f, 1);
-            Debug.Log("Health: " + playerHealth.health);
+            healthMeter.transform.localScale = new Vector3((playerHealth.health) * 3f, 0.5f, 1);
+
         }
         
 
