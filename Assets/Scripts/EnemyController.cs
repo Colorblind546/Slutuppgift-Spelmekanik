@@ -721,6 +721,7 @@ public class EnemyController : MonoBehaviour
     public void Staggered()
     {
         Debug.Log("Staggered");
+        animator.SetTrigger("Stagger");
     }
 
 

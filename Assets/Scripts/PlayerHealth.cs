@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class PlayerHealth : MonoBehaviour
 {
-    [SerializeField] int health;
-    [SerializeField] int armour;
+    public int health;
+    public int shield;
 
     // Player rendering related variables
     SpriteRenderer playerRenderer;
@@ -40,9 +40,9 @@ public class PlayerHealth : MonoBehaviour
 
     public void RechargeArmour()
     {
-        if (armour < 3 && armour > 0 && playerEnergy.energy == 100)
+        if (shield < 3 && shield > 0 && playerEnergy.energy == 100)
         {
-            armour++;
+            shield++;
             playerEnergy.energy = 0;
         }
     }
@@ -63,15 +63,15 @@ public class PlayerHealth : MonoBehaviour
             enemyController.Staggered();
             playerEnergy.RechargeEnergy(100);
         }
-        else if (armour <= 0)
+        else if (shield <= 0)
         {
             health--;
             playerRenderer.color = Color.red;
             Invoke("ResetColor", 0.1f);
         }
-        else if (armour > 0)
+        else if (shield > 0)
         {
-            armour--;
+            shield--;
             playerRenderer.color = Color.red;
             Invoke("ResetColor", 0.1f);
         }

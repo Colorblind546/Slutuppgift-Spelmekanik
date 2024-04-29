@@ -9,11 +9,13 @@ public class EnemyHealth : MonoBehaviour
     public int health;
 
     SpriteRenderer spriteRenderer;
+    Animator animator;
 
 
     // Start is called before the first frame update
     void Start()
     {
+        animator = GetComponent<Animator>();
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
 
@@ -31,6 +33,10 @@ public class EnemyHealth : MonoBehaviour
 
     public void ReceiveDamage(int damage, string damageType)
     {
+        if (animator.GetCurrentAnimatorStateInfo(0).IsName("DarkKnightStagger"))
+        {
+            damage *= 3; // Takes the recieved damage and triples it if staggered
+        }
         if (damage != 0 && damageType != "Blocked")
         {
             Debug.Log("Hit");
