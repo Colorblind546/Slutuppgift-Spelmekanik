@@ -310,12 +310,12 @@ public class EnemyController : MonoBehaviour
                             if (nextState == 0)
                             {
                                 combatState = "Cautious";
-                                inStateFor = 3.5f;
+                                inStateFor = 2f;
                             }
                             else
                             {
                                 combatState = "Defensive";
-                            inStateFor = 5;
+                            inStateFor = 3.5f;
                             }
                         }
                             break;
@@ -416,7 +416,7 @@ public class EnemyController : MonoBehaviour
                             else
                             {
                                 combatState = "Cautious";
-                                inStateFor = 3.5f;
+                                inStateFor = 2f;
                             }
                         }
                             break;
@@ -507,7 +507,7 @@ public class EnemyController : MonoBehaviour
                             else
                             {
                                 combatState = "Defensive";
-                                inStateFor = 5;
+                                inStateFor = 3.5f;
                             }
                     
                         }
@@ -584,7 +584,7 @@ public class EnemyController : MonoBehaviour
     {
         offensiveCooldown = 3;
         animator.SetTrigger("BasicSlash");
-        Invoke("AttackHitCheck", hitFrameDelay * 0.8f);
+        Invoke("AttackHitCheck", hitFrameDelay / 0.8f);
         Debug.Log("Attack delay: " + hitFrameDelay);
     }
 

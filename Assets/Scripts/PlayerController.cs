@@ -353,8 +353,8 @@ public class PlayerController : MonoBehaviour
             playerAnimations.SetTrigger("Parry");
             float parryFrameTimeStart = parryAnim.length / Mathf.CeilToInt(parryAnim.length * parryAnim.frameRate) * 3; /* PlaceHolder Start Frame Number */
             float parryFrameTimeEnd = parryAnim.length / Mathf.CeilToInt(parryAnim.length * parryAnim.frameRate) * 5; /* PlaceHolder End Frame Number */
-            Invoke("ParryFrames", parryFrameTimeStart);
-            Invoke("ParryEnd", parryFrameTimeEnd);
+            Invoke("ParryFrames", parryFrameTimeStart / 1.35f);
+            Invoke("ParryEnd", parryFrameTimeEnd / 1.35f);
         }
         
     }
