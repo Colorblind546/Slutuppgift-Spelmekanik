@@ -208,7 +208,11 @@ public class EnemyController : MonoBehaviour
         if (playerSpotted)
         {
             isPlayerToLeft = playerDistance < 0f;
-            spriteRenderer.flipX = isPlayerToLeft;
+            if (!isDead)
+            {
+                spriteRenderer.flipX = isPlayerToLeft;
+            }
+            
 
             if (healthStats.health > 33.3f)
             {
