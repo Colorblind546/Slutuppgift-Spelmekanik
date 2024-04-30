@@ -353,12 +353,12 @@ public class PlayerController : MonoBehaviour
             playerAnimations.SetTrigger("Parry");
             float parryFrameTimeStart = parryAnim.length / Mathf.CeilToInt(parryAnim.length * parryAnim.frameRate) * 3; /* PlaceHolder Start Frame Number */
             float parryFrameTimeEnd = parryAnim.length / Mathf.CeilToInt(parryAnim.length * parryAnim.frameRate) * 5; /* PlaceHolder End Frame Number */
-            Invoke("ParryFrames", parryFrameTimeStart / 1.35f);
+            Invoke("ParryStart", parryFrameTimeStart / 1.35f);
             Invoke("ParryEnd", parryFrameTimeEnd / 1.35f);
         }
         
     }
-    private void ParryFrames()
+    private void ParryStart()
     {
         isParrying = true;
     }
@@ -378,7 +378,7 @@ public class PlayerController : MonoBehaviour
 
     public void BlockedAnAttack()
     {
-        blockCooldown = 5;
+        blockCooldown = 2; // Sets a cooldown for blocking to prevent player from spamming block
         isBlocking = false;
     }
 }

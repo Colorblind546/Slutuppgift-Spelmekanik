@@ -32,6 +32,12 @@ public class PlayerHealth : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (transform.position.y < -50)
+        {
+            OnPlayerReceiveDamage("Unblockable", null);
+        }
+
+
         if (health <= 0)
         {
             Die();
@@ -40,11 +46,15 @@ public class PlayerHealth : MonoBehaviour
 
     public void RechargeArmour()
     {
-        if (shield < 3 && shield > 0 && playerEnergy.energy == 100)
+        if (Input.GetKeyDown(KeyCode.R))
         {
-            shield++;
-            playerEnergy.energy = 0;
+            if (shield < 3 && playerEnergy.energy == 100)
+            {
+                shield++;
+                playerEnergy.energy = 0;
+            }
         }
+        
     }
 
     public void OnPlayerReceiveDamage(string damageType, GameObject attackOrigin)
@@ -52,7 +62,7 @@ public class PlayerHealth : MonoBehaviour
         EnemyController enemyController = attackOrigin.GetComponent<EnemyController>();
         
 
-        if (playerController.isBlocking && playerEnergy.UseEnergy(20))
+        if (playerController.isBlocking && playerEnergy.UseEnergy(20) && damageType != "Unblockable")
         {
             playerRenderer.color = Color.cyan;
             Invoke("ResetColor", 0.2f);
