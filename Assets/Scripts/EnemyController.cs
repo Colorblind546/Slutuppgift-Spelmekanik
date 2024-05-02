@@ -490,7 +490,6 @@ public class EnemyController : MonoBehaviour
                             if (isPlayerToLeft)
                             {
                                 DodgeRight();
-
                             }
                             else
                             {

@@ -27,7 +27,10 @@ public class PlayerHealth : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            RechargeArmour();
+        }
     }
 
     private void FixedUpdate()
@@ -46,15 +49,11 @@ public class PlayerHealth : MonoBehaviour
 
     public void RechargeArmour()
     {
-        if (Input.GetKeyDown(KeyCode.R))
+        if (shield < 3 && playerEnergy.energy == 100)
         {
-            if (shield < 3 && playerEnergy.energy == 100)
-            {
-                shield++;
-                playerEnergy.energy = 0;
-            }
+            shield++;
+            playerEnergy.energy = 0;
         }
-        
     }
 
     public void OnPlayerReceiveDamage(string damageType, GameObject attackOrigin)
